@@ -79,7 +79,7 @@
   <ItemGroup>
     <Compile Include="App_Start\AutofacConfig.cs" />
     <Compile Include="App_Start\ConsoleModeRunner.cs" />
-    <Compile Include="CommandExecutors\CommandExecutor.cs" />
+    <Compile Include="CommandExecutors\LightCommandExecutor.cs" />
     <Compile Include="CommandParser\LightConsoleCommand.cs" />
     <Compile Include="CommandParser\OffConsoleCommand.cs" />
     <Compile Include="CommandParser\RegisterConsoleCommandAttribute.cs" />

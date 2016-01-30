@@ -17,7 +17,7 @@ namespace HueConsole.CommandParser
         public OffConsoleCommand(LightCommandExecutor executor)
         {
             this._executor = executor;
-            this.IsCommand("off", "Turn the light(s) off.");
+            this.IsCommand("off", "Turn the light(s) off");
         }
 
         public override int Run(string[] remainingArguments)

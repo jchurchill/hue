@@ -27,17 +27,24 @@ namespace HueConsole.App_Start
             var prompt = string.Format("Enter a command or '{0}' to exit or '{1}' for help", ExitCommand, HelpCommand);
             this._outputStream.WriteLine(prompt);
 
-            var input = this._inputStream.ReadLine();
+            var input = this.WaitForInput();
             while (!input.Trim().Equals(ExitCommand))
             {
                 this.ProcessCommand(input);
-                input = this._inputStream.ReadLine();
+                input = this.WaitForInput();
             }
+        }
+
+        private string WaitForInput()
+        {
+            this._outputStream.Write(">> ");
+            return this._inputStream.ReadLine();
         }
 
         private void ProcessCommand(string input)
         {
-            using (var scope = this._scope.BeginLifetimeScope())
+            using (var scope = this._scope.BeginLifetimeScope(
+                builder => builder.RegisterInstance<TextWriter>(this._outputStream)))
             {
                 var commands = scope.Resolve<IEnumerable<ConsoleCommand>>();
                 if (input.Trim() == HelpCommand)
@@ -49,8 +56,6 @@ namespace HueConsole.App_Start
                     var args = CommandLineParser.Parse(input);
                     var result = ConsoleCommandDispatcher.DispatchCommand(commands, args, this._outputStream, true);
                 }
-
-                this._outputStream.WriteLine();
             }
         }
     }

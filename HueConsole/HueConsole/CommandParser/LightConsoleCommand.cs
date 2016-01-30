@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using HueConsole.CommandExecutors;
 using ManyConsole;
@@ -13,15 +14,17 @@ namespace HueConsole.CommandParser
         public const string LightVerb = "light";
 
         private readonly LightCommandExecutor _executor;
+        private readonly TextWriter _outputStream;
 
         private static readonly int[] ValidLightNumbers = new[] { 1, 2, 3 };
 
-        public LightConsoleCommand(LightCommandExecutor executor)
+        public LightConsoleCommand(LightCommandExecutor executor, TextWriter outputStream)
         {
             this._executor = executor;
-            this.IsCommand(LightVerb, "Change properties for one or more lights.")
-                .AllowsAnyAdditionalArguments("<light #s>")
-                .HasOption<string>("c|color=", "Hex color to apply to the light(s).", c => { this.Color = c; });
+            this._outputStream = outputStream;
+            this.IsCommand(LightVerb, "Change properties for one or more lights")
+                .AllowsAnyAdditionalArguments("<light numbers>")
+                .HasOption<string>("c|color=", "Hex color to apply to the light(s)", c => { this.Color = c; });
         }
 
         private string Color { get; set; }
@@ -42,14 +45,15 @@ namespace HueConsole.CommandParser
             }
             var lightNumbers = parsedRemainingArgs.Select(a => a.Value).ToArray();
 
-            var affectedLights = lightNumbers.Any()
-                ? lightNumbers.Select(ln => ln.ToString())
-                : null;
+            var affectedLights = lightNumbers.Any() ? lightNumbers : null;
 
             var command = new LightCommand { On = true };
             command.SetColor(this.Color ?? "FFFFFF");
 
-            this._executor.ExecuteCommand(command);
+            var whichLights = affectedLights != null ? ("lights " + string.Join(",", affectedLights)) : "all lights";
+            this._outputStream.WriteLine("Sending light command to {0}...", whichLights);
+            this._executor.ExecuteCommand(command, affectedLights);
+            this._outputStream.WriteLine("Command successfully sent!");
 
             return 0;
         }
@@ -58,7 +62,7 @@ namespace HueConsole.CommandParser
         {
             if (!this.IsColorValid())
             {
-                var message = string.Format("Color {0} is an invalid hex value.", this.Color);
+                var message = string.Format("Color {0} is an invalid hex value", this.Color);
                 throw new ConsoleHelpAsException(message);
             }
             return base.OverrideAfterHandlingArgumentsBeforeRun(remainingArguments);
