@@ -37,8 +37,12 @@
       <HintPath>..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="CommandLine, Version=1.9.71.2, Culture=neutral, PublicKeyToken=de6f01bd326f8c32, processorArchitecture=MSIL">
-      <HintPath>..\packages\CommandLineParser.1.9.71\lib\net45\CommandLine.dll</HintPath>
+    <Reference Include="ManyConsole, Version=0.4.2.18, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ManyConsole.0.4.2.18\lib\ManyConsole.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NDesk.Options, Version=0.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NDesk.Options.0.2.1\lib\NDesk.Options.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -74,12 +78,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\AutofacConfig.cs" />
-    <Compile Include="CommandExecutors\CommandExecutorAttribute.cs" />
-    <Compile Include="CommandExecutors\CommandExecutorBase.cs" />
-    <Compile Include="CommandExecutors\ICommandExecutor.cs" />
-    <Compile Include="CommandExecutors\LightCommandExecutor.cs" />
-    <Compile Include="CommandParser\LightOptions.cs" />
-    <Compile Include="CommandParser\CommandOptions.cs" />
+    <Compile Include="App_Start\ConsoleModeRunner.cs" />
+    <Compile Include="CommandExecutors\CommandExecutor.cs" />
+    <Compile Include="CommandParser\LightConsoleCommand.cs" />
+    <Compile Include="CommandParser\OffConsoleCommand.cs" />
+    <Compile Include="CommandParser\RegisterConsoleCommandAttribute.cs" />
     <Compile Include="HueInitializer.cs" />
     <Compile Include="App_Start\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

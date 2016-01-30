@@ -1,20 +1,23 @@
-﻿using System;
-using System.Configuration;
+﻿using System.Configuration;
 using System.Linq;
 using Autofac;
 using HueConsole.CommandExecutors;
+using HueConsole.CommandParser;
+using ManyConsole;
 using Q42.HueApi;
 
 namespace HueConsole.App_Start
 {
-	static class AutofacConfig
+    static class AutofacConfig
 	{
 		public static IContainer Configure()
 		{
 			var builder = new ContainerBuilder();
 
 			RegisterHueClient(builder);
-			RegisterCommandExecutors(builder);
+            RegisterCommands(builder);
+
+            builder.RegisterType<LightCommandExecutor>().AsSelf();
 
 			return builder.Build();
 		}
@@ -25,20 +28,17 @@ namespace HueConsole.App_Start
 			var appKey = ConfigurationManager.AppSettings["appKey"];
 			var client = new LocalHueClient(appBridgeIP);
 			client.Initialize(appKey);
-			builder.Register(cc => client).SingleInstance().AsSelf();
+			builder.RegisterInstance(client).ExternallyOwned();
 		}
 
-		private static void RegisterCommandExecutors(ContainerBuilder builder)
-		{
-			var registrations = typeof(CommandExecutorAttribute).Assembly.GetTypes()
-				.SelectMany(t =>
-					t.GetCustomAttributes(typeof(CommandExecutorAttribute), true)
-						.Cast<CommandExecutorAttribute>()
-						.Select(att => new { Type = t, Key = att.CommandVerb }));
-			foreach (var registration in registrations)
-			{
-				builder.RegisterType(registration.Type).Keyed<ICommandExecutor>(registration.Key);
-			}
-		}
+        private static void RegisterCommands(ContainerBuilder builder)
+        {
+            var consoleCommandTypes = typeof(RegisterConsoleCommandAttribute).Assembly.GetTypes()
+                .Where(t => t.GetCustomAttributes(typeof(RegisterConsoleCommandAttribute), true).Any());
+            foreach (var consoleCommandType in consoleCommandTypes)
+            {
+                builder.RegisterType(consoleCommandType).As<ConsoleCommand>();
+            }
+        }
 	}
 }
